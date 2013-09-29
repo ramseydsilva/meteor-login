@@ -1,17 +1,65 @@
 <head>
-  <title>app</title>
+    <title>app</title>
+    <link href="/bootstrap.min.css" rel="stylesheet">
+    <link href="/app.css" rel="stylesheet">
 </head>
 
 <body>
-  {{> hello}}
+    {{> user }}
+    {{> users }}
 </body>
 
-<template name="hello">
+<template name="user">
     {{# if user }}
-        <h1>Hello {{ user.services.facebook.name }}</h1>
-        <input type="button" value="Logout" id="logout" />
+        <h1>Hello {{ user.profile.name }}</h1>
+        <button class="btn btn-default" id="logout">Logout</button>
     {{ else }}
         <h1>Hello World</h1>
-        <input type="button" value="Login with facebook" id="login-facebook" />
+        <button class="btn btn-default {{# if display_register }}btn-info{{/if}}" id="register">Register</button>
+        <button class="btn btn-default {{# if display_login }}btn-info{{/if}}" id="login">Login</button>
+        <button class="btn btn-default" id="login-facebook">Login with facebook</button>
     {{/if }}
+
+    {{# if display_register }}
+    <p>
+    <form class="form-inline" role="form" id="register-form">
+      <div class="form-group">
+        <label class="sr-only" for="username">Username</label>
+        <input type="username" class="form-control" id="username" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <label class="sr-only" for="password">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Password">
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+      <div id="register_error" class="error"></div>
+    </form>
+    </p>
+    {{/if }}
+
+    {{# if display_login }}
+    <p>
+    <form class="form-inline" role="form" id="login-form">
+      <div class="form-group">
+        <label class="sr-only" for="username">Username</label>
+        <input type="username" class="form-control" id="username" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <label class="sr-only" for="password">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Password">
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+      <div id="login_error" class="error"></div>
+    </form>
+    </p>
+    {{/if }}
+</template>
+
+<template name="users">
+    <h3>List of Users</h3>
+    <ul>
+    {{#each users }}
+        <li>{{ profile.name }}</li>
+    {{/each}}
+    </ul>
 </template>

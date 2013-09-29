@@ -1,26 +1,77 @@
-Template.hello.greeting = function () {
-    return "Welcome to app.";
-};
-
-Template.hello.events({
-    'click #login-facebook': function(event) {
-        Meteor.loginWithFacebook({
-            requestPermissions: ['publish_actions']
-        }, function (err) {
-            if (err) {
-                Session.set('errorMessage', err.reason || "Unknown error");
-            } else {
-                Template.hello.user = userAcct.services.facebook.name;
-            }
-        });
-    },
-    'click #logout': function(event) {
-        Meteor.logout();
+var UserRouter = Backbone.Router.extend({
+    routes: {
+        "register(/)": register_view,
+        "login(/)": login_view,
+        "logout(/)": logout_view,
+        "": main_view
     }
 });
 
-console.log(Meteor.user());
+Router = new UserRouter();
 
-Template.hello.user =  function() {
+Template.user.events({
+    'click #login-facebook': function(event) {
+        Meteor.loginWithFacebook({
+            requestPermissions: ['publish_actions']
+        }, function(err) {
+            if (err)
+            {
+            }
+            else {
+                Meteor.user().profile = Meteor.user().services.facebook();
+            }
+        });
+    },
+    'click #register': function() { Router.navigate("/register/", {trigger: true}); },
+    'click #login': function() { Router.navigate("/login/", {trigger: true}); },
+    'click #logout': function() { Router.navigate("/logout/", {trigger: true}); },
+    'submit #register-form': function(event) {
+        var username = $(event.target).find('#username').val();
+        var password = $(event.target).find('#password').val();
+        Accounts.createUser({
+            username: username,
+            password: password
+        }, function(err) {
+            if (err) {
+                $("#register_error").html(err.reason);
+            } else {
+                Meteor.loginWithPassword(username, password);
+            }
+        });
+        return false;
+    },
+    'submit #login-form': function(event) {
+        var username = $(event.target).find('#username').val();
+        var password = $(event.target).find('#password').val();
+        Meteor.loginWithPassword(username, password,  function(err) {
+            if (err) {
+                $("#login_error").html(err.reason);
+            }
+        });
+        return false;
+    }
+});
+
+Template.user.user =  function() {
+    if (Meteor.user()) {
+        SessionAmplify.set('display_register', false);
+        SessionAmplify.set('display_login', false);
+    }
     return Meteor.user();
 }
+
+Template.user.display_register = function() {
+    return SessionAmplify.get('display_register');
+}
+
+Template.user.display_login = function() {
+    return SessionAmplify.get('display_login');
+}
+
+Template.users.users = function() {
+    return Meteor.users.find();
+}
+
+Meteor.startup(function () {
+    Backbone.history.start({pushState: true});
+});
