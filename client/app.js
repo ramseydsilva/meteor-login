@@ -14,12 +14,8 @@ Template.user.events({
         Meteor.loginWithFacebook({
             requestPermissions: ['publish_actions']
         }, function(err) {
-            if (err)
-            {
-            }
-            else {
+            if (!err)
                 Meteor.user().profile = Meteor.user().services.facebook();
-            }
         });
     },
     'click #register': function() { Router.navigate("/register/", {trigger: true}); },
@@ -28,26 +24,34 @@ Template.user.events({
     'submit #register-form': function(event) {
         var username = $(event.target).find('#username').val();
         var password = $(event.target).find('#password').val();
-        Accounts.createUser({
-            username: username,
-            password: password
-        }, function(err) {
-            if (err) {
-                $("#register_error").html(err.reason);
-            } else {
-                Meteor.loginWithPassword(username, password);
-            }
-        });
+        if (username && password) {
+            Accounts.createUser({
+                username: username,
+                password: password
+            }, function(err) {
+                if (err) {
+                    $("#register_error").html(err.reason);
+                } else {
+                    Meteor.loginWithPassword(username, password);
+                }
+            });
+        } else {
+            $("#register_error").html("Both username and password are required");
+        }
         return false;
     },
     'submit #login-form': function(event) {
         var username = $(event.target).find('#username').val();
         var password = $(event.target).find('#password').val();
-        Meteor.loginWithPassword(username, password,  function(err) {
-            if (err) {
-                $("#login_error").html(err.reason);
-            }
-        });
+        if (username && password) {
+            Meteor.loginWithPassword(username, password,  function(err) {
+                if (err) {
+                    $("#login_error").html(err.reason);
+                }
+            });
+        } else {
+            $("#login_error").html("Both username and password are required");
+        }
         return false;
     }
 });
