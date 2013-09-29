@@ -3,18 +3,24 @@ Template.hello.greeting = function () {
 };
 
 Template.hello.events({
-    'click input' : function () {
-     // template data, if any, is available in 'this'
-     if (typeof console !== 'undefined')
-         console.log("You pressed the button");
+    'click #login-facebook': function(event) {
+        Meteor.loginWithFacebook({
+            requestPermissions: ['publish_actions']
+        }, function (err) {
+            if (err) {
+                Session.set('errorMessage', err.reason || "Unknown error");
+            } else {
+                Template.hello.user = userAcct.services.facebook.name;
+            }
+        });
+    },
+    'click #logout': function(event) {
+        Meteor.logout();
     }
 });
 
-Template.hello.events({'click': function(event) {
-    Meteor.loginWithFacebook({
-        requestPermissions: ['publish_actions']
-    }, function (err) {
-        if (err)
-            Session.set('errorMessage', err.reason || "Unknown error");
-    });
-}});
+console.log(Meteor.user());
+
+Template.hello.user =  function() {
+    return Meteor.user();
+}
